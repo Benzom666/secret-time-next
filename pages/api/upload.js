@@ -40,11 +40,18 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    res.status(500).json({
-      message: "Missing BLOB_READ_WRITE_TOKEN environment variable.",
+  // Check if Blob is configured
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  const isBlobEnabled = blobToken && blobToken !== "undefined" && blobToken !== "";
+
+  if (!isBlobEnabled) {
+    console.warn(
+      "[Upload API] BLOB_READ_WRITE_TOKEN not configured. Uploads disabled."
+    );
+    return res.status(200).json({
+      data: { files: [] },
+      warning: "Blob storage not configured. Please add BLOB_READ_WRITE_TOKEN to environment variables.",
     });
-    return;
   }
 
   try {
@@ -65,7 +72,7 @@ export default async function handler(req, res) {
 
         const blob = await put(blobPath, createReadStream(filePath), {
           access: "public",
-          token: process.env.BLOB_READ_WRITE_TOKEN,
+          token: blobToken,
           addRandomSuffix: false,
           contentType: file.mimetype || "application/octet-stream",
         });
@@ -81,8 +88,11 @@ export default async function handler(req, res) {
 
     res.status(200).json({ data: { files: results } });
   } catch (error) {
-    console.error("Blob upload failed", error);
-    res.status(500).json({ message: "Failed to upload files." });
+    console.error("[Blob Upload] Upload failed:", error);
+    res.status(500).json({
+      message: "Failed to upload files to Blob storage.",
+      error: error.message,
+    });
   }
 }
 
