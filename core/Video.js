@@ -1,6 +1,7 @@
 import React from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import { replaceS3WithBlobUrl } from "utils/Utilities";
 
 const VideoJS = (props) => {
   const videoRef = React.useRef(null);
@@ -71,6 +72,10 @@ const VideoJS = (props) => {
 const VideoComponent = () => {
   const playerRef = React.useRef(null);
 
+  const videoSource = replaceS3WithBlobUrl(
+    "https://d2hill0ae3zx76.cloudfront.net/secret-time/uploads/output.mp4"
+  );
+
   const videoJsOptions = {
     autoplay: false,
     controls: true,
@@ -78,7 +83,7 @@ const VideoComponent = () => {
     fluid: true,
     sources: [
       {
-        src: "https://d2hill0ae3zx76.cloudfront.net/secret-time/uploads/output.mp4",
+        src: videoSource,
         type: "video/mp4",
       },
     ],

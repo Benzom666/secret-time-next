@@ -14,6 +14,7 @@ import {
   removeSessionStorage,
   saveToLocalStorage,
 } from "utils/sessionStorage";
+import { normalizeMediaUrls } from "utils/Utilities";
 
 import { reducer as formReducer } from "redux-form";
 
@@ -25,7 +26,7 @@ if (typeof localStorage !== "undefined") {
   const authCookie = loadFromLocalStorage();
 
   if (authCookie) {
-    initialState = authCookie;
+    initialState = normalizeMediaUrls(authCookie);
     // initialState = JSON.parse(decodeURIComponent(authCookie));
   } else {
     initialState = {
@@ -59,11 +60,12 @@ const authReducer = (state = initialState, action) => {
       };
 
     case AUTHENTICATE:
+      const sanitizedUser = normalizeMediaUrls(action.payload);
       const authObj = {
         showSelectedLocationPopup: true,
         showImageWarningPopup: true,
         isLoggedIn: true,
-        user: action.payload,
+        user: sanitizedUser,
       };
 
       // setCookie("auth", JSON.stringify(authObj));
@@ -72,10 +74,11 @@ const authReducer = (state = initialState, action) => {
       return authObj;
 
     case AUTHENTICATE_UPDATE:
+      const sanitizedPayload = normalizeMediaUrls(action.payload);
       const updateAuth = {
         ...state,
         isLoggedIn: true,
-        user: { ...state.user, ...action.payload },
+        user: { ...state.user, ...sanitizedPayload },
         showSelectedLocationPopup: true,
         showImageWarningPopup: true,
       };

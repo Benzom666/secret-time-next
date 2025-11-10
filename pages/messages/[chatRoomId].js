@@ -31,6 +31,10 @@ function ChatMessages({ ...props }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (!socket) {
+      console.warn("[ChatMessages] Socket not initialized");
+      return;
+    }
     socket.auth = { user: user };
     socket.connect();
     console.log("socket", socket.auth);
@@ -44,12 +48,13 @@ function ChatMessages({ ...props }) {
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
     socket.on("connect_error", () => {
       console.log("connect_error");
       socket.auth = { user: user };
       socket.connect();
     });
-  }, [!socket.connected]);
+  }, [socket?.connected]);
 
   useEffect(() => {
     if (router?.query?.chatRoomId) {

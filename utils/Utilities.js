@@ -8,6 +8,280 @@ import { loadFromLocalStorage } from "./sessionStorage";
 export const socketURL = "https://api.lesociety.com/";
 export const apiURL = "https://api.lesociety.com/";
 
+const BLOB_HOST_INDICATORS = [
+  "secrettime-cdn.s3.",
+  "lesociety.s3.",
+  "d2hill0ae3zx76.cloudfront.net",
+];
+const LEGACY_MEDIA_HOSTS = [
+  "https://secrettime-cdn.s3.eu-west-2.amazonaws.com",
+  "https://lesociety.s3.ca-central-1.amazonaws.com",
+  "https://d2hill0ae3zx76.cloudfront.net",
+];
+const BLOB_KEY_PREFIXES = ["secret-time/", "/secret-time/"];
+
+const getBlobBaseUrl = () => {
+  const base = process.env.NEXT_PUBLIC_BLOB_BASE_URL || "";
+  if (!base) {
+    return "";
+  }
+  return base.endsWith("/") ? base.slice(0, -1) : base;
+};
+
+const ensureLeadingSlash = (value = "") =>
+  value.startsWith("/") ? value : `/${value}`;
+
+const includesBlobHost = (value) => {
+  if (typeof value !== "string") {
+    return false;
+  }
+  const blobBaseUrl = getBlobBaseUrl();
+  return blobBaseUrl && value.startsWith(blobBaseUrl);
+};
+
+export const replaceS3WithBlobUrl = (value) => {
+  if (typeof value !== "string" || !value) {
+    return value;
+  }
+
+  const blobBaseUrl = getBlobBaseUrl();
+
+  if (!blobBaseUrl) {
+    return value;
+  }
+
+  if (
+    includesBlobHost(value) ||
+    value.startsWith("blob:") ||
+    value.startsWith("data:")
+  ) {
+    return value;
+  }
+
+  const hasKnownHost = BLOB_HOST_INDICATORS.some((indicator) =>
+    value.includes(indicator)
+  );
+
+  if (!hasKnownHost) {
+    const prefix = BLOB_KEY_PREFIXES.find((item) => value.startsWith(item));
+    if (prefix) {
+      const path = value.slice(prefix.startsWith("/") ? 1 : 0);
+      return `${blobBaseUrl}${ensureLeadingSlash(path)}`;
+    }
+    return value;
+  }
+
+  try {
+    const parsed = new URL(value);
+    if (
+      !BLOB_HOST_INDICATORS.some((indicator) =>
+        parsed.hostname.includes(indicator)
+      )
+    ) {
+      return value;
+    }
+
+    const path = `${parsed.pathname || ""}${
+      parsed.search || ""
+    }${parsed.hash || ""}`;
+
+    if (!path) {
+      return value;
+    }
+
+    return `${blobBaseUrl}${ensureLeadingSlash(path)}`;
+  } catch (error) {
+    const indicator = BLOB_HOST_INDICATORS.find((item) =>
+      value.includes(item)
+    );
+    if (indicator) {
+      const startIndex = value.indexOf(indicator) + indicator.length;
+      const slashIndex = value.indexOf("/", startIndex);
+      if (slashIndex !== -1) {
+        const path = value.substring(slashIndex);
+        return `${blobBaseUrl}${ensureLeadingSlash(path)}`;
+      }
+    }
+  }
+
+  return value;
+};
+
+const isPlainObject = (value) =>
+  Object.prototype.toString.call(value) === "[object Object]";
+
+const parseUrlSafely = (value) => {
+  if (typeof value !== "string" || value.length === 0) {
+    return null;
+  }
+
+  try {
+    if (/^https?:\/\//i.test(value)) {
+      return new URL(value);
+    }
+    const blobBase = getBlobBaseUrl();
+    if (blobBase) {
+      return new URL(value, blobBase);
+    }
+  } catch (error) {
+    return null;
+  }
+  return null;
+};
+
+export const generateMediaUrlCandidates = (value) => {
+  const candidates = new Set();
+
+  const addCandidate = (url) => {
+    if (url && typeof url === "string") {
+      candidates.add(url);
+    }
+  };
+
+  const resolved = replaceS3WithBlobUrl(value);
+  addCandidate(resolved);
+  addCandidate(value);
+
+  const appendLegacyVariants = (source) => {
+    const parsed = parseUrlSafely(source);
+    if (!parsed) {
+      return;
+    }
+
+    const hostname = parsed.hostname || "";
+    const isBlobHost =
+      hostname.endsWith("vercel-storage.com") ||
+      BLOB_HOST_INDICATORS.some((indicator) => hostname.includes(indicator));
+
+    if (!isBlobHost) {
+      return;
+    }
+
+    const rawPath = `${parsed.pathname || ""}`.replace(/^\/+/, "");
+    const variants = new Set([rawPath]);
+
+    if (rawPath.startsWith("secret-time/")) {
+      variants.add(rawPath.replace(/^secret-time\//, ""));
+    }
+    if (rawPath.startsWith("secret-time/uploads/")) {
+      variants.add(rawPath.replace(/^secret-time\/uploads\//, "uploads/"));
+      variants.add(rawPath.replace(/^secret-time\/uploads\//, ""));
+    }
+    if (rawPath.startsWith("uploads/")) {
+      variants.add(rawPath.replace(/^uploads\//, ""));
+    }
+
+    variants.forEach((variant) => {
+      const cleanVariant = variant.replace(/^\/+/, "");
+      LEGACY_MEDIA_HOSTS.forEach((host) => {
+        addCandidate(`${host}/${cleanVariant}`);
+        addCandidate(`${host}/uploads/${cleanVariant}`);
+        addCandidate(`${host}/secret-time/${cleanVariant}`);
+        addCandidate(`${host}/secret-time/uploads/${cleanVariant}`);
+      });
+    });
+  };
+
+  appendLegacyVariants(resolved);
+  appendLegacyVariants(value);
+
+  return Array.from(candidates).filter(Boolean);
+};
+
+export const normalizeMediaUrls = (value) => {
+  if (typeof value === "string") {
+    return replaceS3WithBlobUrl(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeMediaUrls(item));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.keys(value).reduce((acc, key) => {
+      acc[key] = normalizeMediaUrls(value[key]);
+      return acc;
+    }, {});
+  }
+
+  return value;
+};
+
+const isFormData = (payload) => {
+  if (typeof FormData === "undefined") {
+    return false;
+  }
+  return payload instanceof FormData;
+};
+
+const prepareRequestPayload = (payload) => {
+  if (!payload && payload !== "" && payload !== 0) {
+    return payload;
+  }
+
+  if (typeof payload === "string") {
+    return replaceS3WithBlobUrl(payload);
+  }
+
+  if (isFormData(payload)) {
+    const blobBaseUrl = getBlobBaseUrl();
+    if (!blobBaseUrl) {
+      return payload;
+    }
+    const cloned = new FormData();
+    for (const [key, value] of payload.entries()) {
+      cloned.append(
+        key,
+        typeof value === "string" ? replaceS3WithBlobUrl(value) : value
+      );
+    }
+    return cloned;
+  }
+
+  if (Array.isArray(payload) || isPlainObject(payload)) {
+    return normalizeMediaUrls(payload);
+  }
+
+  return payload;
+};
+
+const transformAxiosResponse = (response) => {
+  if (response && Object.prototype.hasOwnProperty.call(response, "data")) {
+    response.data = normalizeMediaUrls(response.data);
+  }
+  return response;
+};
+
+export const attachBlobUrlTransformerToSocket = (socketInstance) => {
+  if (!socketInstance || socketInstance.__blobTransformApplied) {
+    return socketInstance;
+  }
+
+  const wrapArgs = (args) =>
+    args.map((arg) =>
+      typeof arg === "function" ? arg : normalizeMediaUrls(arg)
+    );
+
+  const originalOn = socketInstance.on.bind(socketInstance);
+  socketInstance.on = (event, listener) => {
+    if (typeof listener !== "function") {
+      return originalOn(event, listener);
+    }
+    return originalOn(event, (...args) => listener(...wrapArgs(args)));
+  };
+
+  const originalEmit = socketInstance.emit.bind(socketInstance);
+  socketInstance.emit = (event, ...args) => {
+    const transformedArgs = args.map((arg) =>
+      typeof arg === "function" ? arg : normalizeMediaUrls(arg)
+    );
+    return originalEmit(event, ...transformedArgs);
+  };
+
+  socketInstance.__blobTransformApplied = true;
+  return socketInstance;
+};
+
 // export const socketURL = "https://staging-api.nsmatka.com/";
 // export const apiURL = "https://staging-api.nsmatka.com";
 
@@ -43,32 +317,49 @@ export const apiRequest = async (args = {}) => {
   if (authCookie) {
     token = authCookie.user?.token;
   }
-  args.url = `${`${apiURL}/api/v1`}/${args.url}`;
-  return axios({
+
+  const endpoint = args.url || "";
+  const isAbsoluteUrl = /^https?:\/\//i.test(endpoint);
+  const requestConfig = {
     ...args,
+    url: isAbsoluteUrl ? endpoint : `${`${apiURL}/api/v1`}/${endpoint}`,
     headers: {
+      ...(args.headers || {}),
       Authorization: `Bearer ${token || ""}`,
     },
-  });
+  };
+
+  if (requestConfig.data !== undefined) {
+    requestConfig.data = prepareRequestPayload(requestConfig.data);
+  }
+
+  if (requestConfig.params !== undefined) {
+    requestConfig.params = prepareRequestPayload(requestConfig.params);
+  }
+
+  return axios(requestConfig).then(transformAxiosResponse);
 };
 
 export const apiRequestChatHistory = async (url, data) => {
   let token = "";
   const authCookie = getCookie("auth");
-  // const authCookie = getSessionStorage("auth");
 
   if (authCookie) {
     token = JSON.parse(decodeURIComponent(authCookie))?.user?.token;
   }
-  args.url = `${"https://api.lesociety.com/api/v1"}/${args.url}`;
+
+  const requestUrl = /^https?:\/\//i.test(url)
+    ? url
+    : `${`${apiURL}/api/v1`}/${url}`;
+
   return axios({
     method: "GET",
-    url: `${url}`,
+    url: requestUrl,
     headers: {
       Authorization: `Bearer ${token || ""}`,
     },
-    data: data,
-  });
+    data: prepareRequestPayload(data),
+  }).then(transformAxiosResponse);
 };
 
 export const imageUploader = async (files) => {
@@ -82,26 +373,19 @@ export const imageUploader = async (files) => {
         : image_url.push({ url: file });
     });
     if (formData.getAll("files").length > 0) {
-      res = await apiRequest({
-        url: "files",
-        method: "POST",
-        data: formData,
-      })
-        .then((success) => {
-          return success;
+      res = await axios
+        .post("/api/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         })
-        .catch((error) => {
-          return false;
-        });
+        .then((success) => success?.data?.data?.files || [])
+        .catch(() => false);
     }
-    if (res?.data) {
-      return image_url.concat(res.data.data.files);
-    } else {
-      return image_url;
+    if (Array.isArray(res)) {
+      return normalizeMediaUrls(image_url.concat(res));
     }
-  } else {
-    return false;
+    return normalizeMediaUrls(image_url);
   }
+  return false;
 };
 
 export const imageUploaderNew = async (files) => {
@@ -115,21 +399,15 @@ export const imageUploaderNew = async (files) => {
       }
     });
     if (formData.getAll("files").length > 0) {
-      res = await apiRequest({
-        url: "files",
-        method: "POST",
-        data: formData,
-      })
-        .then((success) => {
-          return success;
+      res = await axios
+        .post("/api/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         })
-        .catch((error) => {
-          return false;
-        });
+        .then((success) => success?.data?.data?.files || [])
+        .catch(() => false);
     }
-    console.log("res", res);
-    if (res?.data) {
-      res.data.data?.files?.forEach((file, index) => {
+    if (Array.isArray(res)) {
+      res.forEach((file) => {
         // find index of file in image_url array
         const indexId = image_url.findIndex(
           (item) => item?.url[0]?.name === file?.fileName
@@ -139,13 +417,11 @@ export const imageUploaderNew = async (files) => {
           image_url[indexId] = { url: file?.url };
         }
       });
-      return image_url;
-    } else {
-      return image_url;
+      return normalizeMediaUrls(image_url);
     }
-  } else {
-    return false;
+    return normalizeMediaUrls(image_url);
   }
+  return false;
 };
 
 export const showToast = (message, type) => {

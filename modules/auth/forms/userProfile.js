@@ -23,6 +23,7 @@ import {
   dateCategory,
   countriesCode,
   socketURL,
+  attachBlobUrlTransformerToSocket,
 } from "utils/Utilities";
 import SkeletonUserProfile from "@/modules/skeleton/user/SkeletonUserProfile";
 
@@ -33,9 +34,11 @@ import MessageModal from "@/core/MessageModal";
 import io from "socket.io-client";
 import { AUTHENTICATE_UPDATE } from "../actionConstants";
 
-export const socket = io(socketURL, {
-  autoConnect: true,
-});
+export const socket = attachBlobUrlTransformerToSocket(
+  io(socketURL, {
+    autoConnect: true,
+  })
+);
 
 function UserProfile({ preview, editHandle }) {
   const { width } = useWindowSize();

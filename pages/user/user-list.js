@@ -5,7 +5,12 @@ import Footer from "core/footer";
 import router from "next/router";
 import LocationPopup from "@/core/locationPopup";
 import withAuth from "../../core/withAuth";
-import { apiRequest, countriesCode, socketURL } from "utils/Utilities";
+import {
+  apiRequest,
+  countriesCode,
+  socketURL,
+  attachBlobUrlTransformerToSocket,
+} from "utils/Utilities";
 import {
   fetchCities,
   fetchLiveLocation,
@@ -39,14 +44,19 @@ import Loader from "@/modules/Loader/Loader";
 import StarIcon from "../../assets/Star.png";
 import StarBlankIcon from "../../assets/Star_blank.png";
 
-export const socket = io(socketURL, {
-  reconnection: true,
-  autoConnect: true,
-  transports: ["websocket", "polling", "flashsocket"],
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  reconnectionAttempts: Infinity,
-});
+export const socket =
+  socketURL && socketURL !== "undefined" && socketURL !== ""
+    ? attachBlobUrlTransformerToSocket(
+        io(socketURL, {
+          reconnection: true,
+          autoConnect: true,
+          transports: ["websocket", "polling", "flashsocket"],
+          reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          reconnectionAttempts: 5,
+        })
+      )
+    : null;
 
 function UserList(props) {
   const { width } = useWindowSize();

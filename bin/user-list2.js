@@ -5,7 +5,12 @@ import Footer from "core/footer";
 import router from "next/router";
 import LocationPopup from "@/core/locationPopup";
 import withAuth from "../core/withAuth";
-import { apiRequest, countriesCode, socketURL } from "utils/Utilities";
+import {
+  apiRequest,
+  countriesCode,
+  socketURL,
+  attachBlobUrlTransformerToSocket,
+} from "utils/Utilities";
 import {
   fetchCities,
   fetchLiveLocation,
@@ -28,9 +33,11 @@ import classNames from "classnames";
 import { change } from "redux-form";
 import DateAndLocation from "@/modules/location/DateAndLocation";
 
-export const socket = io(socketURL, {
-  autoConnect: true,
-});
+export const socket = attachBlobUrlTransformerToSocket(
+  io(socketURL, {
+    autoConnect: true,
+  })
+);
 
 function UserList(props) {
   const { width } = useWindowSize();

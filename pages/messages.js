@@ -76,6 +76,10 @@ const Messages = (props) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    if (!socket) {
+      console.warn("[Messages] Socket not initialized");
+      return;
+    }
     socket.auth = { user: user };
     socket.connect();
     console.log("socket", socket.auth);
@@ -89,12 +93,13 @@ const Messages = (props) => {
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
     socket.on("connect_error", () => {
       console.log("connect_error");
       socket.auth = { user: user };
       socket.connect();
     });
-  }, [!socket.connected]);
+  }, [socket?.connected]);
 
   // useEffect(() => {
   // setTimeout(() => {
@@ -1163,11 +1168,7 @@ const Messages = (props) => {
                                   disabled={newMessage.trim() === ""}
                                 >
                                   <Image
-                                    src={
-                                      !newMessage
-                                        ? "https://secrettime-cdn.s3.eu-west-2.amazonaws.com/secret-time/uploads/message_send.png"
-                                        : MessageSend2
-                                    }
+                                    src={!newMessage ? MessageSend : MessageSend2}
                                     alt="send-btn"
                                     width={25}
                                     height={25}

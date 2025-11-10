@@ -3,17 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "set PORT=3000 && next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider PORT=3000 next dev",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider next start"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.14.1",
+    "@vercel/blob": "^2.0.0",
     "antd": "^5.8.4",
     "axios": "^0.24.0",
     "bootstrap": "^5.0.0-beta3",
     "classnames": "^2.3.2",
     "dotenv": "^16.3.1",
+    "formidable": "^3.5.4",
     "formik": "^2.2.9",
     "fs": "^0.0.1-security",
     "js-cookie": "^3.0.1",
@@ -29,7 +31,7 @@
     "rc-slider": "^10.2.1",
     "react": "^17.0.2",
     "react-device-detect": "^2.0.0",
-    "react-dom": "16.13.1",
+    "react-dom": "^17.0.2",
     "react-dropzone": "^11.4.2",
     "react-hook-form": "^7.16.1",
     "react-icons": "^4.2.0",
@@ -59,6 +61,10 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "redux-logger": "^3.0.6"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

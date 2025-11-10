@@ -8,15 +8,21 @@ import useWindowSize from "utils/useWindowSize";
 
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { apiRequest, socketURL } from "utils/Utilities";
+import {
+  apiRequest,
+  socketURL,
+  attachBlobUrlTransformerToSocket,
+} from "utils/Utilities";
 import SkeletonElement from "../SkeletonElement";
 import Shimmer from "../Shimmer";
 import io from "socket.io-client";
 import { useState } from "react";
 
-export const socket = io(socketURL, {
-  autoConnect: true,
-});
+export const socket = attachBlobUrlTransformerToSocket(
+  io(socketURL, {
+    autoConnect: true,
+  })
+);
 function SkeletonUserProfile({ preview, editHandle, theme }) {
   const { width } = useWindowSize();
   const [userDetail, setUserDetail] = React.useState("");

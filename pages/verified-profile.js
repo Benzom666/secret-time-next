@@ -18,6 +18,7 @@ import {
   dateCategory,
   imageUploader,
   socketURL,
+  attachBlobUrlTransformerToSocket,
 } from "utils/Utilities";
 import { format } from "timeago.js";
 import qs from "qs";
@@ -38,9 +39,11 @@ import VerifiedProfileMobileHeader from "@/core/VerifiedProfileMobileHeader";
 import io from "socket.io-client";
 import { logout } from "@/modules/auth/authActions";
 
-export const socket = io(socketURL, {
-  autoConnect: true,
-});
+export const socket = attachBlobUrlTransformerToSocket(
+  io(socketURL, {
+    autoConnect: true,
+  })
+);
 const VerifiedProfilePage = (props) => {
   const { invalid, previousPage, pristine, reset, submitting, touched } = props;
   const [isActive, setActive] = useState(false);

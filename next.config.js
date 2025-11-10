@@ -1,13 +1,53 @@
 const path = require("path");
 require("dotenv").config();
 
+const buildImageRemotePatterns = () => {
+  const patterns = [
+    // Vercel Blob storage patterns
+    {
+      protocol: "https",
+      hostname: "*.public.blob.vercel-storage.com",
+    },
+    {
+      protocol: "https",
+      hostname: "public.blob.vercel-storage.com",
+    },
+    // Legacy S3/CloudFront patterns (for migration period)
+    {
+      protocol: "https",
+      hostname: "secrettime-cdn.s3.eu-west-2.amazonaws.com",
+    },
+    {
+      protocol: "https",
+      hostname: "*.s3.*.amazonaws.com",
+    },
+    {
+      protocol: "https",
+      hostname: "d2hill0ae3zx76.cloudfront.net",
+    },
+    {
+      protocol: "https",
+      hostname: "i.ibb.co", // placeholder images
+    },
+  ];
+
+  // Add custom domains from env if provided
+  if (process.env.NEXT_PUBLIC_IMAGE_DOMAINS) {
+    const extraDomains = process.env.NEXT_PUBLIC_IMAGE_DOMAINS.split(",")
+      .map((domain) => domain.trim())
+      .filter(Boolean);
+    extraDomains.forEach((hostname) => {
+      patterns.push({ protocol: "https", hostname });
+    });
+  }
+
+  return patterns;
+};
+
 module.exports = {
   images: {
-    domains: [
-      "lesociety.s3.ca-central-1.amazonaws.com",
-      "secrettime-cdn.s3.eu-west-2.amazonaws.com",
-      "d2hill0ae3zx76.cloudfront.net",
-    ],
+    remotePatterns: buildImageRemotePatterns(),
+    unoptimized: true,
   },
 
   devIndicators: {

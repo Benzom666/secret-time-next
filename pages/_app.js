@@ -21,14 +21,23 @@ import io from "socket.io-client";
 import "styles/style.scss";
 import { removeCookie } from "utils/cookie";
 import LanscapeDecline from "@/core/LanscapeDecline";
-import { socketURL } from "utils/Utilities";
+import {
+  socketURL,
+  attachBlobUrlTransformerToSocket,
+} from "utils/Utilities";
 
-// export const socket = io(socketURL, {
-//   autoConnect: true,
-// });
-export const socket = io(socketURL, {
-  autoConnect: true,
-});
+// Conditionally initialize socket only if URL is configured
+export const socket =
+  socketURL && socketURL !== "undefined" && socketURL !== ""
+    ? attachBlobUrlTransformerToSocket(
+        io(socketURL, {
+          autoConnect: true,
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 5,
+        })
+      )
+    : null;
 
 // export const socket = io(socketURL, {
 //   autoConnect: true,
