@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider PORT=3000 next dev",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build",
-    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider next start"
+    "dev": "cross-env PORT=3000 next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
     "@adobe/react-spectrum": "^3.14.1",

@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "BLOB_READ_WRITE_TOKEN": "@blob_read_write_token"
+  },
+  "build": {
+    "env": {
+      "BLOB_READ_WRITE_TOKEN": "@blob_read_write_token"
+    }
+  }
+}
+
