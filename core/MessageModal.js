@@ -2,21 +2,27 @@ import { Field, Form, Formik } from "formik";
 import React, { useState, useRef, useEffect } from "react";
 import { apiRequest } from "utils/Utilities";
 import CustomInput from "Views/CustomInput";
-import MessageSend from "assets/Send.svg";
-import MessageSend2 from "assets/message_send2.png";
+const MessageSend = "/assets/Send.svg";
+const MessageSend2 = "/assets/message_send2.png";
 import * as Yup from "yup";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/modules/auth/authActions";
-import StarIcon from "../assets/Star.png";
-import StarBlankIcon from "../assets/Star_blank.png";
-import MessageSend3 from "assets/message_new.svg";
-import MessageSend4 from "assets/Path.svg";
-import MessageSend5 from "assets/Send.svg";
+import StandalonePaywallModal from "../components/StandalonePaywallModal";
+import MessagePlanSelector from "../components/MessagePlanSelector";
+const StarIcon = "/assets/Star.png";
+const StarBlankIcon = "/assets/Star_blank.png";
+const MessageSend3 = "/assets/message_new.svg";
+const MessageSend4 = "/assets/Path.svg";
+const MessageSend5 = "/assets/Send.svg";
 import useWindowSize from "utils/useWindowSize";
 
-function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
+function MessageModal({ user: userProp, date, toggle, userMessageNoModal, close }) {
+  const dispatch = useDispatch();
+  const userFromStore = useSelector((state) => state.authReducer.user);
+  const user = userProp || userFromStore;
+
   const [classPopup, setPopupClass] = React.useState("hide");
   const [receiverData, setReceiverData] = React.useState("");
 
@@ -25,6 +31,8 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
   const iconRef = useRef(null);
 
   const [isSuperInterested, setIsSuperInterested] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showMessagePlanSelector, setShowMessagePlanSelector] = useState(false);
 
   const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
@@ -43,7 +51,6 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
   }, []);
 
   const router = useRouter();
-  const dispatch = useDispatch();
 
   const { width } = useWindowSize();
 
@@ -102,6 +109,27 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
   };
 
   const handleUserMessageSubmit = async (values) => {
+    // Paywall check: Block free/test male users from sending messages
+    // Check if user is male and doesn't have elite/premium membership (test account with locked dials)
+    const isMale = user?.gender === "male";
+    const hasEliteOrPremium = user?.membership_type === "elite" || user?.membership_type === "premium";
+    
+    // If male user doesn't have elite/premium (test account), show paywall
+    if (isMale && !hasEliteOrPremium) {
+      setShowPaywall(true);
+      return; // Block message sending
+    }
+
+    // Dial count check: Show top-up modal if elite/premium member has 0 interested_dials remaining
+    // Note: userMessageNoModal doesn't support super interested, so always check interested_dials
+    if (hasEliteOrPremium) {
+      const currentInterestedDials = user?.interested_dials || 0;
+      if (currentInterestedDials <= 0) {
+        setShowMessagePlanSelector(true);
+        return; // Block message sending, show top-up modal
+      }
+    }
+
     // moveIcon();
     try {
       const data = {
@@ -116,6 +144,21 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
         method: "POST",
         url: `chat/request`,
       });
+
+      // Decrement interested_dials by 1 for elite/premium members after successful message send
+      // Note: userMessageNoModal doesn't support super interested, so always decrement interested_dials
+      if (hasEliteOrPremium && res?.data) {
+        const currentInterestedDials = user?.interested_dials || 0;
+        if (currentInterestedDials > 0) {
+          dispatch({
+            type: "AUTHENTICATE_UPDATE",
+            payload: {
+              ...user,
+              interested_dials: Math.max(0, currentInterestedDials - 1),
+            },
+          });
+        }
+      }
 
       console.log("res", res);
       values.message = "";
@@ -141,6 +184,36 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
       return;
     }
 
+    // Paywall check: Block free/test male users from sending messages
+    // Check if user is male and doesn't have elite/premium membership (test account with locked dials)
+    const isMale = user?.gender === "male";
+    const hasEliteOrPremium = user?.membership_type === "elite" || user?.membership_type === "premium";
+    
+    // If male user doesn't have elite/premium (test account), show paywall
+    if (isMale && !hasEliteOrPremium) {
+      setShowPaywall(true);
+      return; // Block message sending
+    }
+
+    // Dial count check: Show top-up modal if elite/premium member has 0 dials remaining
+    if (hasEliteOrPremium) {
+      if (isSuperInterested) {
+        // Check if user has super_interested_dials remaining
+        const currentSuperInterestedDials = user?.super_interested_dials || 0;
+        if (currentSuperInterestedDials <= 0) {
+          setShowMessagePlanSelector(true);
+          return; // Block message sending, show top-up modal
+        }
+      } else {
+        // Check if user has interested_dials remaining
+        const currentInterestedDials = user?.interested_dials || 0;
+        if (currentInterestedDials <= 0) {
+          setShowMessagePlanSelector(true);
+          return; // Block message sending, show top-up modal
+        }
+      }
+    }
+
     moveIcon();
     console.log("values", values);
     try {
@@ -159,6 +232,36 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
         method: "POST",
         url: `chat/request`,
       });
+
+      // Decrement dial counts for elite/premium members after successful message send
+      if (hasEliteOrPremium && res?.data) {
+        if (isSuperInterested) {
+          // Decrement super_interested_dials by 1
+          const currentSuperInterestedDials = user?.super_interested_dials || 0;
+          if (currentSuperInterestedDials > 0) {
+            dispatch({
+              type: "AUTHENTICATE_UPDATE",
+              payload: {
+                ...user,
+                super_interested_dials: Math.max(0, currentSuperInterestedDials - 1),
+              },
+            });
+          }
+        } else {
+          // Decrement interested_dials by 1
+          const currentInterestedDials = user?.interested_dials || 0;
+          if (currentInterestedDials > 0) {
+            dispatch({
+              type: "AUTHENTICATE_UPDATE",
+              payload: {
+                ...user,
+                interested_dials: Math.max(0, currentInterestedDials - 1),
+              },
+            });
+          }
+        }
+      }
+
       toggle();
       closePopup();
       console.log("res", res);
@@ -226,7 +329,7 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                         <Image
                           src={
                             formProps.values.message === ""
-                              ? MessageSend
+                              ? "https://secrettime-cdn.s3.eu-west-2.amazonaws.com/secret-time/uploads/message_send.png"
                               : MessageSend2
                           }
                           alt="send-btn"
@@ -248,10 +351,7 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
         </>
       ) : (
         <>
-          <button
-            onClick={() => openPopup(date)}
-            className="next dangerous-btn"
-          >
+          <button onClick={() => openPopup(date)} className="next dangerous-btn">
             Message
           </button>
           <div id="message-popup" className={`message-popup ${classPopup}`}>
@@ -266,16 +366,16 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                 <path
                   d="M12.9924 12.9926L1.00244 1.00006"
                   stroke="white"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
                 <path
                   d="M12.9887 1.00534L1.00873 12.9853"
                   stroke="white"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </span>
@@ -285,19 +385,39 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                 receiverData?.user_data[0]?.tagline}
               "
             </p>
+            {/* Super Interested Star Button - WORKING STATE: DO NOT MODIFY */}
+            {/* Star icon: Grey (StarBlankIcon) when NOT selected, Pink (StarIcon) when selected */}
+            {/* Always visible with explicit styling to prevent hiding */}
             <div
               className={`super__interested__star ${
                 isSuperInterested ? "active" : ""
               }`}
               onClick={() => setIsSuperInterested(!isSuperInterested)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+                marginBottom: "16px",
+              }}
             >
               <Image
                 src={isSuperInterested ? StarIcon : StarBlankIcon}
-                height={15}
-                width={15}
+                alt="star icon"
+                height={20}
+                width={20}
+                unoptimized
+                style={{
+                  display: "inline-block",
+                  opacity: 1,
+                  visibility: "visible",
+                  minWidth: "20px",
+                  minHeight: "20px",
+                  flexShrink: 0,
+                  objectFit: "contain",
+                }}
               />
-
-              <span className="super__interested">I’m Super Interested!</span>
+              <span className="super__interested">I'm Super Interested!</span>
             </div>
             <div>
               <Formik
@@ -330,7 +450,6 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                           id="message"
                           component={CustomInput}
                         />
-
                         {isSuperInterested && (
                           <div
                             style={{
@@ -352,7 +471,9 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                             />
                           </div>
                         )}
-
+                        {/* Send Button - WORKING STATE: DO NOT MODIFY */}
+                        {/* Always visible, positioned on right side of input field */}
+                        {/* Grey when empty, colored when message exists */}
                         <button
                           type="button"
                           style={{
@@ -373,20 +494,20 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                               border: "none",
                             }}
                           >
-                            <Image
+                            <img
                               src={
                                 formProps.values.message === ""
-                                  ? MessageSend
-                                  : MessageSend2
+                                  ? "https://secrettime-cdn.s3.eu-west-2.amazonaws.com/secret-time/uploads/message_send.png"
+                                  : "https://secrettime-cdn.s3.eu-west-2.amazonaws.com/secret-time/uploads/message_send2.png"
                               }
                               alt="send-btn"
-                              width={28}
-                              height={28}
-                              className="no-radius"
                               onClick={() => {
                                 handleSubmit(formProps.values);
                                 formProps.resetForm();
                               }}
+                              className="no-radius"
+                              width={28}
+                              height={28}
                             />
                           </div>
                         </button>
@@ -396,10 +517,46 @@ function MessageModal({ user, date, toggle, userMessageNoModal, close }) {
                 }}
               </Formik>
             </div>
-            <p className="tip">Tip: Maybe mention why you’re here.</p>
+            <p className="tip">Tip: Maybe mention why you're here.</p>
           </div>
         </>
       )}
+
+      {/* Paywall Modal - Shows when free/test male user tries to send message */}
+      <StandalonePaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onViewPlans={() => {
+          setShowPaywall(false);
+          // Close message modal and redirect to upgrade
+          closePopup();
+          if (toggle) toggle();
+          // Optionally redirect to upgrade page
+          // router.push("/membership-plans");
+        }}
+      />
+
+      {/* Message Plan Selector - Shows when elite/premium member has 0 dials remaining */}
+      <MessagePlanSelector
+        isOpen={showMessagePlanSelector}
+        onClose={() => setShowMessagePlanSelector(false)}
+        onCheckout={(data) => {
+          console.log("Message plan checkout:", data);
+          // Update user tokens after successful purchase
+          dispatch({
+            type: "AUTHENTICATE_UPDATE",
+            payload: {
+              ...user,
+              interested_dials: (user?.interested_dials || 0) + (data.quantities.interested || 0),
+              super_interested_dials: (user?.super_interested_dials || 0) + (data.quantities["super-interested"] || 0),
+            },
+          });
+          setShowMessagePlanSelector(false);
+          // After top-up, user can retry sending the message
+          // Optionally, you can automatically retry sending the message here
+        }}
+        initialQuantities={{ interested: 0, "super-interested": 0 }}
+      />
     </>
   );
 }

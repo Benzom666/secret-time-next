@@ -1,0 +1,249 @@
+@import "design-tokens";
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(18px);
+  z-index: 800;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-width: 356px;
+  width: calc(100% - 32px);
+  background: linear-gradient(180deg, rgba(13, 13, 13, 0.96) 0%, rgba(9, 9, 9, 0.92) 100%);
+  border-radius: 28px;
+  padding: 32px 24px 28px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  z-index: 801;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card {
+  position: relative;
+  border-radius: 20px;
+  padding: 24px 20px 16px;
+  background: linear-gradient(180deg, rgba(24, 24, 24, 0.95) 0%, rgba(10, 10, 10, 0.92) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.cardSuper {
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.95) 0%, rgba(12, 12, 12, 0.92) 100%);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ribbon {
+  position: absolute;
+  top: 20px;
+  right: -62px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at 20% 40%, rgba(255, 65, 108, 0.75), rgba(95, 0, 255, 0.2));
+  transform: rotate(30deg);
+  filter: blur(0.5px);
+}
+
+.cardSuper .ribbon {
+  background: radial-gradient(circle at 20% 40%, rgba(255, 65, 108, 0.85), rgba(95, 0, 255, 0.3));
+}
+
+.cardHeader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-family: $font-script;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.titleSuper {
+  color: #ff4f78;
+}
+
+.subtitle {
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  text-transform: capitalize;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.price {
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.counterRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.counterButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.counterValue {
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+}
+
+.cardFooter {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+}
+
+.subtotalLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+}
+
+.subtotalValue {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.minimumNote {
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.checkoutButton {
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  border: none;
+  font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: #111;
+  background: #ff4f78;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(255, 79, 120, 0.4);
+  }
+}
+
+.checkoutDisabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.35);
+  cursor: not-allowed;
+  box-shadow: none;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+.checkoutWarning {
+  background: linear-gradient(90deg, #ff4f78 0%, #ff946a 100%);
+}
+
+@media (max-width: 420px) {
+  .modal {
+    max-width: 328px;
+    padding: 28px 20px 24px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+}

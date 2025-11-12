@@ -19,6 +19,7 @@ import useWindowSize from "utils/useWindowSize";
 import { apiRequest } from "utils/Utilities";
 import io from "socket.io-client";
 import { socket } from "pages/user/user-list";
+import MessagePlanSelector from "../components/MessagePlanSelector";
 
 function sideBarPopup({ isOpen, toggle, count }) {
   const width = useWindowSize();
@@ -27,6 +28,7 @@ function sideBarPopup({ isOpen, toggle, count }) {
   const router = useRouter();
   const [documentUpoaded, setDocumentUpoaded] = useState(false);
   const [notifData, setNotifdata] = useState(null);
+  const [showMessagePlanSelector, setShowMessagePlanSelector] = useState(false);
   // const [count, setCount] = useState(0);
   // const socket = io(socketURL, {
   //   autoConnect: true,
@@ -37,6 +39,58 @@ function sideBarPopup({ isOpen, toggle, count }) {
       setDocumentUpoaded(true);
     }
   }, [user]);
+
+  // Fetch updated user data when sidebar opens
+  const fetchUpdatedUserData = async () => {
+    try {
+      const res = await apiRequest({
+        method: "GET",
+        url: `user/user-by-name?user_name=${user?.user_name}`,
+      });
+      if (res?.data?.data?.user) {
+        dispatch({
+          type: "AUTHENTICATE_UPDATE",
+          payload: res.data.data.user,
+        });
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+  };
+
+  // TEST: Auto-upgrade to Elite Plan with dial counts
+  const handleTestUpgrade = () => {
+    if (user?.gender === "male" && (user?.membership_type !== "elite" && user?.membership_type !== "premium")) {
+      console.log("🧪 TEST: Upgrading user to Elite Plan with dial counts");
+      dispatch({
+        type: "AUTHENTICATE_UPDATE",
+        payload: {
+          ...user,
+          membership_type: "elite",
+          interested_dials: 18,
+          super_interested_dials: 4,
+          message_tokens: 10,
+          hasActiveMembership: true,
+          isPremium: true,
+          subscription_status: "active",
+        },
+      });
+      // Close sidebar to show updated state
+      toggle();
+      // Reopen after a brief delay to show updated state
+      setTimeout(() => {
+        if (typeof toggle === 'function') {
+          toggle();
+        }
+      }, 100);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && user?.user_name) {
+      fetchUpdatedUserData();
+    }
+  }, [isOpen]);
 
   // const fetchNotifications = async () => {
   //   try {
@@ -243,6 +297,122 @@ function sideBarPopup({ isOpen, toggle, count }) {
                 </div>
                 <SubHeading title="Let them know you are real" />
               </div>
+              {user?.gender === "male" && (
+                <div className="verification_card_header text-center mb-3" style={{ padding: "15px 20px", backgroundColor: "#0b0b0b" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                      <span style={{ color: "#AFABAB", fontSize: "12px" }}>
+                        {user?.membership_type === "elite" || user?.membership_type === "premium" ? "Membership" : "Current Plan"}
+                      </span>
+                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px" }}>
+                        <strong>{user?.membership_type === "elite" ? "Elite Plan:" : user?.membership_type === "premium" ? "Premium Plan:" : "The Test Drive:"}</strong>
+                        {user?.membership_type === "elite" || user?.membership_type === "premium" ? " Renews Nov 1" : " Limited Access"}
+                      </span>
+                    </div>
+                    {(user?.membership_type === "elite" || user?.membership_type === "premium") && (
+                      <button style={{ color: "#f24462", fontSize: "16px", textDecoration: "underline", background: "none", border: "none", cursor: "pointer" }}>
+                        Manage
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div style={{ display: "flex", justifyContent: "space-around", gap: "32px", marginBottom: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", width: "110px" }}>
+                      <svg width="110" height="120" viewBox="0 0 110 120" style={{ position: "absolute", top: "16px" }}>
+                        <circle cx="55" cy="55" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8"/>
+                        {(user?.membership_type === "elite" || user?.membership_type === "premium") && user?.interested_dials > 0 && (
+                          <circle 
+                            cx="55" 
+                            cy="55" 
+                            r="45" 
+                            fill="none" 
+                            stroke="url(#gradient1)" 
+                            strokeWidth="8"
+                            strokeDasharray={`${(user?.interested_dials / 20) * 283} 283`}
+                            strokeLinecap="round"
+                            transform="rotate(-90 55 55)"
+                          />
+                        )}
+                        <defs>
+                          <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#6B5DD3"/>
+                            <stop offset="100%" stopColor="#F24462"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px", fontWeight: "bold", marginBottom: "8px", zIndex: 1 }}>Interested</span>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "80px", zIndex: 1 }}>
+                        <span style={{ color: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "rgba(255,255,255,0.9)" : "#AFABAB", fontSize: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "32px" : "14px", fontWeight: "bold" }}>
+                          {(user?.membership_type === "elite" || user?.membership_type === "premium") ? (user?.interested_dials || 0) : "Locked"}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", width: "110px" }}>
+                      <svg width="110" height="120" viewBox="0 0 110 120" style={{ position: "absolute", top: "16px" }}>
+                        <circle cx="55" cy="55" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8"/>
+                        {(user?.membership_type === "elite" || user?.membership_type === "premium") && user?.super_interested_dials > 0 && (
+                          <circle 
+                            cx="55" 
+                            cy="55" 
+                            r="45" 
+                            fill="none" 
+                            stroke="url(#gradient2)" 
+                            strokeWidth="8"
+                            strokeDasharray={`${(user?.super_interested_dials / 10) * 283} 283`}
+                            strokeLinecap="round"
+                            transform="rotate(-90 55 55)"
+                          />
+                        )}
+                        <defs>
+                          <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#6B5DD3"/>
+                            <stop offset="100%" stopColor="#F24462"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px", fontWeight: "bold", marginBottom: "8px", zIndex: 1 }}>Super Interested</span>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "80px", zIndex: 1 }}>
+                        <span style={{ color: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "rgba(255,255,255,0.9)" : "#AFABAB", fontSize: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "32px" : "14px", fontWeight: "bold" }}>
+                          {(user?.membership_type === "elite" || user?.membership_type === "premium") ? (user?.super_interested_dials || 0) : "Locked"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p style={{ color: "white", fontSize: "12px", marginBottom: "8px" }}>
+                    {(user?.membership_type === "elite" || user?.membership_type === "premium") 
+                      ? "Monthly Balance renews Nov 1" 
+                      : "Upgrade to unlock monthly balance"}
+                  </p>
+                  <button 
+                    style={{ 
+                      width: "100%", 
+                      padding: "10px 60px", 
+                      backgroundColor: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "#191c21" : "#f24462", 
+                      color: "white", 
+                      border: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "1px solid #293036" : "none", 
+                      borderRadius: "8px", 
+                      fontSize: "14px",
+                      fontWeight: (user?.membership_type === "elite" || user?.membership_type === "premium") ? "normal" : "bold",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => {
+                      if (user?.membership_type === "elite" || user?.membership_type === "premium") {
+                        // Show MessagePlanSelector for elite members
+                        setShowMessagePlanSelector(true);
+                      } else {
+                        // TEST: Auto-upgrade for testing
+                        handleTestUpgrade();
+                        // Original behavior (comment out for production):
+                        // router.push("/upgrade-plan");
+                      }
+                    }}
+                  >
+                    {(user?.membership_type === "elite" || user?.membership_type === "premium") ? "Top Up Tokens" : "UPGRADE PLAN"}
+                  </button>
+                </div>
+              )}
               {user?.gender === "female" && (
                 <div className="verification_card_header text-center mb-0">
                   {/* <div className="mb-1">
@@ -327,6 +497,26 @@ function sideBarPopup({ isOpen, toggle, count }) {
           </div>
         </div>
       </div>
+      
+      <MessagePlanSelector
+        isOpen={showMessagePlanSelector}
+        onClose={() => setShowMessagePlanSelector(false)}
+        onCheckout={(data) => {
+          console.log("Message plan checkout:", data);
+          // TODO: Integrate with payment API
+          // After successful purchase, update user tokens
+          dispatch({
+            type: "AUTHENTICATE_UPDATE",
+            payload: {
+              ...user,
+              interested_dials: (user?.interested_dials || 0) + (data.quantities.interested || 0),
+              super_interested_dials: (user?.super_interested_dials || 0) + (data.quantities["super-interested"] || 0),
+            },
+          });
+          setShowMessagePlanSelector(false);
+        }}
+        initialQuantities={{ interested: 0, "super-interested": 0 }}
+      />
     </div>
   );
 }

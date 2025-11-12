@@ -242,7 +242,11 @@ const UserCardList = ({
             className="user_img_date"
             onClick={
               isDesktopView
-                ? !dateDetailsIsOpen && toggle
+                ? () => {
+                    if (!dateDetailsIsOpen && typeof toggle === 'function') {
+                      toggle();
+                    }
+                  }
                 : () => {
                     growDiv(cardId);
                     setMobileDateDetailsIsOpen(!dateMobileDetailsIsOpen);
@@ -529,7 +533,11 @@ const UserCardList = ({
                       user?.gender === "male" &&
                       !messagedFromUserDone &&
                       !alreadyMessaged && (
-                        <button onClick={openPopup} className="next">
+                        <button onClick={() => {
+                          if (typeof openPopup === 'function') {
+                            openPopup();
+                          }
+                        }} className="next">
                           Message
                         </button>
                       )}

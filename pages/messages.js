@@ -35,6 +35,8 @@ import MessageSend2 from "assets/message_send2.png";
 import { logout } from "@/modules/auth/authActions";
 import moment from "moment";
 import StarIcon from "../assets/request star.png";
+import StandalonePaywallModal from "../components/StandalonePaywallModal";
+import MensTokenTopUpModal from "../components/MensTokenTopUpModal";
 
 // const socket = io.connect(socketURL);
 
@@ -71,6 +73,8 @@ const Messages = (props) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState(false);
 
   // for notification
   const [count, setCount] = useState(0);
@@ -429,6 +433,15 @@ const Messages = (props) => {
 
   const sendMessage = async (e) => {
     // e.preventDefault();
+
+    // Paywall check for free male users
+    const isMale = user?.gender === "male";
+    const isPaid = user?.hasActiveMembership || user?.isPremium || user?.subscription_status === "active";
+
+    if (isMale && !isPaid) {
+      setShowPaywall(true);
+      return;
+    }
 
     const data = {
       chatRoomId: currentChat?.message?.room_id ?? currentChat?._id,
@@ -826,23 +839,17 @@ const Messages = (props) => {
                                           <figure className="user_img_header">
                                             <Image
                                               src={
-                                                c.user?.images?.length > 0 &&
-                                                c.user?.images
-                                                  ? c.user?.images[0]
-                                                  : (user?.images &&
-                                                      user?.images[0]) ||
-                                                    NoImage
+                                                (c.user?.images?.length > 0 && c.user?.images?.[0]) ||
+                                                user?.images?.[0] ||
+                                                NoImage
                                               }
                                               loader={myLoader}
                                               priority={true}
                                               placeholder="blur"
                                               blurDataURL={
-                                                c.user?.images?.length > 0 &&
-                                                c.user?.images
-                                                  ? c.user?.images[0]
-                                                  : (user?.images &&
-                                                      user?.images[0]) ||
-                                                    NoImage
+                                                (c.user?.images?.length > 0 && c.user?.images?.[0]) ||
+                                                user?.images?.[0] ||
+                                                NoImage
                                               }
                                               alt="user image"
                                               width={32}
@@ -1162,9 +1169,11 @@ const Messages = (props) => {
                                 <button
                                   type="button"
                                   className="send_btn"
-                                  onClick={
-                                    newMessage.trim() !== "" && sendMessage
-                                  }
+                                  onClick={(e) => {
+                                    if (newMessage.trim() !== "") {
+                                      sendMessage(e);
+                                    }
+                                  }}
                                   disabled={newMessage.trim() === ""}
                                 >
                                   <Image
@@ -1174,19 +1183,6 @@ const Messages = (props) => {
                                     height={25}
                                   />
                                 </button>
-                                {/* <div className="send_btn">
-                                  {newMessage.trim() !== "" ? (
-                                    <Image
-                                      src={MessageSend2}
-                                      alt="send-btn"
-                                      onClick={
-                                        newMessage.trim() !== "" && sendMessage
-                                      }
-                                    />
-                                  ) : (
-                                    <Image src={MessageSend} alt="send-btn" />
-                                  )}
-                                </div> */}
                               </div>
                             )}
                           </div>
@@ -1216,6 +1212,25 @@ const Messages = (props) => {
           </form>
         </div>
       </div>
+
+      <StandalonePaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onViewPlans={() => {
+          setShowPaywall(false);
+          setShowTokenModal(true);
+        }}
+      />
+
+      <MensTokenTopUpModal
+        isOpen={showTokenModal}
+        onClose={() => setShowTokenModal(false)}
+        onCheckout={(data) => {
+          console.log("Token checkout:", data);
+          setShowTokenModal(false);
+        }}
+        initialQuantities={{ interested: 0, "super-interested": 0 }}
+      />
     </div>
   );
 };

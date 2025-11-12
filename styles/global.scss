@@ -33,6 +33,14 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "HipsterScriptW00";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/fonts/DancingScript-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
 a:hover {
   color: $white-color !important;
 }

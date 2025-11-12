@@ -1,0 +1,338 @@
+// 🎨 Design Tokens - Extracted from Figma Designs
+// These values will be updated to exact specifications once Figma assets are analyzed
+
+// ========================================
+// COLORS
+// ========================================
+
+// Primary Colors
+$color-primary: #F24462;
+$color-primary-hover: darken(#F24462, 8%);
+$color-primary-active: darken(#F24462, 12%);
+
+// Background Colors
+$color-bg-app: #000000;
+$color-bg-dark: #0A0A0A;
+$color-bg-card: #151515;
+$color-bg-card-secondary: #191B1F;
+$color-bg-input: #1A1A1A;
+
+// Border Colors
+$color-border-glass: #293036;
+$color-border-light: rgba(255, 255, 255, 0.1);
+$color-border-medium: rgba(255, 255, 255, 0.18);
+$color-border-heavy: rgba(255, 255, 255, 0.25);
+
+// Text Colors
+$color-text-primary: #FFFFFF;
+$color-text-secondary: #E2E2E2;
+$color-text-tertiary: #A8A8A8;
+$color-text-quaternary: #979797;
+$color-text-disabled: #666666;
+
+// Status Colors
+$color-success: #4CAF50;
+$color-error: #FF5252;
+$color-warning: #FFC107;
+$color-info: #2196F3;
+
+// Overlay Colors
+$color-overlay-dark: rgba(0, 0, 0, 0.7);
+$color-overlay-glass: rgba(46, 49, 58, 0.7);
+$color-overlay-blur: rgba(25, 25, 25, 0.95);
+
+// ========================================
+// TYPOGRAPHY
+// ========================================
+
+// Font Families
+$font-primary: 'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-light: 'Helvetica Light', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-bold: 'Helvetica Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+$font-script: 'HipsterScriptW00', 'Pacifico', 'Brush Script MT', cursive;
+$font-mono: 'SF Mono', 'Courier New', monospace;
+
+// Font Sizes
+$font-size-xs: 11px;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 22px;
+$font-size-2xl: 24px;
+$font-size-3xl: 28px;
+$font-size-4xl: 32px;
+$font-size-5xl: 60px;
+
+// Font Weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line Heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// Letter Spacing
+$letter-spacing-tight: -0.02em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.05em;
+
+// ========================================
+// SPACING
+// ========================================
+
+$spacing-0: 0;
+$spacing-1: 4px;
+$spacing-2: 8px;
+$spacing-3: 10px;
+$spacing-4: 16px;
+$spacing-5: 20px;
+$spacing-6: 24px;
+$spacing-7: 28px;
+$spacing-8: 40px;
+$spacing-9: 48px;
+$spacing-10: 64px;
+
+// Semantic Spacing
+$spacing-xs: $spacing-1;    // 4px
+$spacing-sm: $spacing-2;    // 8px
+$spacing-md: $spacing-4;    // 16px
+$spacing-lg: $spacing-6;    // 24px
+$spacing-xl: $spacing-8;    // 40px
+$spacing-2xl: $spacing-9;   // 48px
+
+// ========================================
+// BORDER RADIUS
+// ========================================
+
+$radius-xs: 5px;
+$radius-sm: 8px;
+$radius-md: 13px;
+$radius-lg: 20px;
+$radius-xl: 30px;
+$radius-2xl: 50px;
+$radius-full: 9999px;
+
+// ========================================
+// SHADOWS
+// ========================================
+
+// Card Shadows
+$shadow-card-sm: 0 4px 16px rgba(0, 0, 0, 0.3);
+$shadow-card-md: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+$shadow-card-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
+
+// Modal Shadows
+$shadow-modal: 0 16px 64px rgba(0, 0, 0, 0.6);
+$shadow-modal-heavy: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+// Button Shadows
+$shadow-button: 0 4px 16px rgba(0, 0, 0, 0.3);
+$shadow-button-hover: 0 6px 20px rgba(0, 0, 0, 0.4);
+
+// Inset Shadows (for glass effect)
+$shadow-inset-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+$shadow-inset-medium: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+$shadow-inset-heavy: inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+$shadow-inset-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+// Combined Glass Shadow
+$shadow-glass-light: 
+  0 8px 32px 0 rgba(0, 0, 0, 0.37),
+  inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+
+$shadow-glass-heavy:
+  0 16px 64px rgba(0, 0, 0, 0.6),
+  inset 0 1px 0 rgba(255, 255, 255, 0.1),
+  inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+// ========================================
+// BLUR
+// ========================================
+
+$blur-light: 4.5px;
+$blur-medium: 10px;
+$blur-heavy: 13.5px;
+$blur-intense: 20px;
+$blur-extreme: 28px;
+$blur-max: 32px;
+
+// ========================================
+// TRANSITIONS
+// ========================================
+
+// Durations
+$transition-fast: 150ms;
+$transition-base: 300ms;
+$transition-slow: 500ms;
+
+// Easing Functions (Apple-style)
+$ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+$ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+$ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
+
+// Combined Transitions
+$transition-all: all $transition-base $ease-standard;
+$transition-transform: transform $transition-base $ease-standard;
+$transition-opacity: opacity $transition-fast $ease-standard;
+$transition-shadow: box-shadow $transition-base $ease-standard;
+
+// ========================================
+// Z-INDEX
+// ========================================
+
+$z-index-dropdown: 100;
+$z-index-sticky: 200;
+$z-index-fixed: 300;
+$z-index-modal-backdrop: 900;
+$z-index-modal: 1000;
+$z-index-popover: 1100;
+$z-index-tooltip: 1200;
+
+// ========================================
+// BREAKPOINTS
+// ========================================
+
+$breakpoint-xs: 375px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1440px;
+
+// ========================================
+// GRADIENTS
+// ========================================
+
+// Glass Gradients
+$gradient-glass-light: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.15) 0%,
+  rgba(255, 255, 255, 0.1) 100%
+);
+
+$gradient-glass-dark: linear-gradient(
+  135deg,
+  rgba(255, 255, 255, 0.1) 0%,
+  rgba(0, 0, 0, 0.5) 100%
+);
+
+$gradient-glass-modal: linear-gradient(
+  220.1995632472116deg,
+  rgba(46, 49, 58, 0.7) 11.937%,
+  rgba(25, 25, 25, 0.9) 69.417%
+);
+
+// Profile Gradients
+$gradient-profile-overlay: linear-gradient(
+  to top,
+  rgba(0, 0, 0, 0.9) 0%,
+  rgba(0, 0, 0, 0) 100%
+);
+
+// Header Gradient
+$gradient-header: linear-gradient(
+  to bottom,
+  #000000 0%,
+  rgba(0, 0, 0, 0.01) 100%
+);
+
+// Button Gradients
+$gradient-button-primary: linear-gradient(
+  135deg,
+  #F24462 0%,
+  darken(#F24462, 5%) 100%
+);
+
+// ========================================
+// COMPONENT SPECIFIC
+// ========================================
+
+// Buttons
+$button-height-sm: 40px;
+$button-height-md: 48px;
+$button-height-lg: 56px;
+$button-padding-x: 40px;
+$button-padding-y: 0;
+
+// Inputs
+$input-height: 48px;
+$input-padding-x: 16px;
+$input-padding-y: 12px;
+
+// Cards
+$card-padding: 16px;
+$card-padding-lg: 24px;
+
+// Modals
+$modal-padding: 20px;
+$modal-max-width: 400px;
+$modal-border-radius: $radius-xl;
+
+// ========================================
+// UTILITY MIXINS
+// ========================================
+
+// Glass Effect Mixin
+@mixin glass-effect($blur: $blur-heavy, $bg-opacity: 0.7) {
+  backdrop-filter: blur($blur) saturate(200%) brightness(105%);
+  -webkit-backdrop-filter: blur($blur) saturate(200%) brightness(105%);
+  background: $gradient-glass-modal;
+  border: 1px solid $color-border-medium;
+  box-shadow: $shadow-glass-heavy;
+}
+
+// Text Truncate
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Multi-line Truncate
+@mixin text-truncate-lines($lines: 3) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Center Absolute
+@mixin center-absolute {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// Responsive
+@mixin responsive($breakpoint) {
+  @media (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+// ========================================
+// NOTES
+// ========================================
+
+/*
+  These design tokens are extracted from Figma designs.
+  Once exact Figma specs are provided, all values will be updated
+  to match pixel-perfect measurements.
+  
+  Usage:
+  @import 'design-tokens';
+  
+  .component {
+    color: $color-text-primary;
+    padding: $spacing-md;
+    border-radius: $radius-lg;
+  }
+*/
+

@@ -1,0 +1,592 @@
+// Message Plan Selector - Pixel Perfect Figma Implementation
+// Figma Node: 2697-1460
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  padding: 20px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+  // Hide scrollbar
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE and Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  position: relative;
+  background: rgba(21, 21, 21, 0.98);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-radius: 30px;
+  padding: 48px 16px 16px 16px;
+  max-width: 390px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  box-sizing: border-box;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center center;
+  // Hide scrollbar
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE and Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome, Safari, Opera
+  }
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    padding: 48px 16px 16px 16px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 19px;
+  right: 16.01px;
+  width: 11.99px;
+  height: 11.99px;
+  cursor: pointer;
+  z-index: 10001;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.closeButtonInner {
+  position: absolute;
+  inset: -6.25% -6.26%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plansContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+  max-width: 358px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.planCard {
+  border: 2px solid #3f3f3f;
+  border-radius: 20px;
+  padding: 10px;
+  background: transparent;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: clip;
+  box-sizing: border-box;
+}
+
+.planHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-left: 0;
+  padding-right: 24px;
+  padding-top: 0;
+  padding-bottom: 0;
+  width: 100%;
+  min-height: 151px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.planTitleSection {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  margin-right: -24px;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.planOptionsWrapper {
+  width: 198px;
+  height: 87px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.3447px;
+  line-height: normal;
+  font-style: normal;
+  flex-shrink: 0;
+}
+
+.planOptions {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.planOptionsImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.planSubtitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.subtitleContent {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  height: 24px;
+  width: 100%;
+}
+
+.boltIcon {
+  width: 9.226px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.boltIconInner {
+  position: absolute;
+  inset: -0.1% -32.74% -33.43% -32.71%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.planSubtitle {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1;
+  flex: 1 0 0;
+  min-width: 0;
+
+  p {
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+    line-height: normal;
+  }
+}
+
+.planPrice {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.5;
+  height: 20px;
+  width: 100%;
+
+  p {
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+  }
+}
+
+.arrowContainer {
+  position: absolute;
+  left: 250px;
+  top: 3px;
+  width: 87.954px;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.arrowContainerSuper {
+  position: absolute;
+  left: 212px;
+  top: 16.5px;
+  width: 126px;
+  height: 148px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  z-index: 1;
+}
+
+.arrowWrapper {
+  position: absolute;
+  left: -0.24px;
+  top: 0;
+  width: 87.954px;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrowWrapperFirst {
+  left: 37.76px;
+  top: 0;
+}
+
+.arrowWrapperLast {
+  left: 0;
+  top: 0;
+}
+
+.arrowImageWrapper {
+  position: absolute;
+  inset: -4.73% -3.08% -4.73% -12.51%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrowImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  max-width: none;
+}
+
+.quantityContainer {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 100%;
+}
+
+.quantityButton {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.quantityButtonInner {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  border-style: solid;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.quantitySymbol {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 70px;
+  font-weight: 500;
+  color: #f24462;
+  line-height: 40px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  white-space: pre-wrap;
+}
+
+.quantityDisplay {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  border-style: solid;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.quantityValue {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 48px;
+  font-weight: 400;
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-position: from-font;
+  line-height: 48px;
+  position: absolute;
+  left: 24.56px;
+  top: -5px;
+  transform: translateX(-50%);
+  font-style: normal;
+  text-align: center;
+}
+
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 16px;
+  line-height: 24px;
+  width: 100%;
+  color: #a0a0a0;
+  font-style: normal;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.featureLabel {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #a0a0a0;
+  margin: 0;
+  height: 20px;
+  line-height: 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.feature {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  height: 20px;
+  line-height: 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.featureSuper1 {
+  font-family: 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 0;
+  height: 19.2px;
+  width: 100%;
+  color: #a0a0a0;
+  text-align: left;
+
+  .featureRegular {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #a0a0a0;
+  }
+
+  .featureBold {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+
+.featureSuper2 {
+  font-family: 'Helvetica Light', 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  margin: 0;
+  height: 24px;
+  width: 100%;
+  color: #a0a0a0;
+  text-align: left;
+
+  .featureRegular {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: #a0a0a0;
+  }
+
+  .featureBold {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+
+.checkoutSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  max-width: 358px;
+  flex-shrink: 0;
+}
+
+.minPurchase {
+  font-family: 'Helvetica Light', 'Helvetica', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+  width: 288px;
+  font-style: normal;
+  white-space: pre-wrap;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-style: normal;
+    white-space: pre-wrap;
+  }
+}
+
+.checkoutButtonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.checkoutButton {
+  width: 300px;
+  height: 48px;
+  background: #f24462;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Helvetica', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: -0.08px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-style: normal;
+  line-height: normal;
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-style: normal;
+    line-height: normal;
+    text-align: center;
+  }
+
+  &:hover:not(:disabled) {
+    background: #e03d55;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 300px;
+  }
+}

@@ -46,7 +46,14 @@ const buildImageRemotePatterns = () => {
 
 module.exports = {
   images: {
-    remotePatterns: buildImageRemotePatterns(),
+    domains: [
+      "jsgwaodu7fnjsnyt.public.blob.vercel-storage.com",
+      "public.blob.vercel-storage.com",
+      "secrettime-cdn.s3.eu-west-2.amazonaws.com",
+      "lesociety.s3.ca-central-1.amazonaws.com",
+      "d2hill0ae3zx76.cloudfront.net",
+      "i.ibb.co",
+    ],
     unoptimized: true,
   },
 
