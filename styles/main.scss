@@ -4462,6 +4462,12 @@ body .verification_card_header {
   height: 310px !important;
   top: unset !important;
   z-index: 2;
+  
+  // Ensure message popup doesn't cover paywall modal
+  &:has(+ .standalone-paywall-modal),
+  ~ .standalone-paywall-modal {
+    z-index: 999999 !important;
+  }
 }
 
 /* For iPad Pro (12.9-inch) (4th generation) */

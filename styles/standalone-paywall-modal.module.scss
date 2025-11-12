@@ -1,37 +1,43 @@
 .modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh; // Dynamic viewport height for mobile browsers
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  display: flex;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important; // Dynamic viewport height for mobile browsers
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  display: flex !important;
   justify-content: center;
   align-items: center;
-  z-index: 99999;
+  z-index: 999999 !important; // Increased z-index to ensure it's above all other elements
   padding: 20px;
   animation: fadeIn 0.3s ease;
   // Prevent iOS Safari bounce
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  // Ensure modal is always visible
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 
   // Ensure modal is visible on mobile
   @supports (-webkit-touch-callout: none) {
     // iOS Safari
-    height: -webkit-fill-available;
+    height: -webkit-fill-available !important;
   }
 
   @media (max-width: 768px) {
     padding: 16px;
+    z-index: 999999 !important; // Ensure it's above all elements on mobile
   }
 
   @media (max-width: 480px) {
     padding: 12px;
+    z-index: 999999 !important; // Ensure it's above all elements on mobile
   }
 }
 
@@ -45,10 +51,10 @@
 }
 
 .modalContent {
-  position: relative;
-  background: rgba(21, 21, 21, 0.98);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  position: relative !important;
+  background: rgba(21, 21, 21, 0.98) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
   border-radius: 30px;
   padding: 48px 16px 32px;
   max-width: 390px;
@@ -61,12 +67,26 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: center center;
+  // Ensure modal content is always visible
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  z-index: 1000000 !important; // Higher z-index than overlay
 
   @media (max-width: 768px) {
-    padding: 48px 16px 32px;
-    max-width: calc(100% - 40px);
-    border-radius: 30px;
+    padding: 40px 16px 24px;
+    max-width: calc(100% - 32px);
+    border-radius: 20px;
     max-height: 85vh;
+    z-index: 1000000 !important; // Ensure it's above overlay on mobile
+  }
+
+  @media (max-width: 480px) {
+    padding: 32px 12px 20px;
+    max-width: calc(100% - 24px);
+    border-radius: 20px;
+    max-height: 80vh;
+    z-index: 1000000 !important; // Ensure it's above overlay on mobile
   }
 
   // Hide scrollbar

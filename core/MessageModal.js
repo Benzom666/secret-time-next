@@ -34,20 +34,26 @@ function MessageModal({ user: userProp, date, toggle, userMessageNoModal, close 
   const [showPaywall, setShowPaywall] = useState(false);
   const [showMessagePlanSelector, setShowMessagePlanSelector] = useState(false);
 
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-
+  const [isIOS, setIsIOS] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
   const [isIPadPro, setIsIPadPro] = useState(false);
 
   useEffect(() => {
-    const checkDevice = () => {
-      const isIPadPro =
-        /Mac|iPod|iPad/.test(navigator.platform) &&
-        navigator.maxTouchPoints > 1;
-      setIsIPadPro(isIPadPro);
-    };
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
+      const isIOSDevice = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isAndroidDevice = /Android/.test(navigator.userAgent);
+      setIsIOS(isIOSDevice);
+      setIsAndroid(isAndroidDevice);
 
-    checkDevice();
+      const checkDevice = () => {
+        const isIPadProDevice =
+          /Mac|iPod|iPad/.test(navigator.platform) &&
+          navigator.maxTouchPoints > 1;
+        setIsIPadPro(isIPadProDevice);
+      };
+
+      checkDevice();
+    }
   }, []);
 
   const router = useRouter();
@@ -114,10 +120,24 @@ function MessageModal({ user: userProp, date, toggle, userMessageNoModal, close 
     const isMale = user?.gender === "male";
     const hasEliteOrPremium = user?.membership_type === "elite" || user?.membership_type === "premium";
     
+    // Debug logging for mobile troubleshooting
+    console.log("Paywall check (userMessageNoModal):", {
+      isMale,
+      hasEliteOrPremium,
+      membership_type: user?.membership_type,
+      gender: user?.gender,
+      userId: user?._id,
+    });
+    
     // If male user doesn't have elite/premium (test account), show paywall
     if (isMale && !hasEliteOrPremium) {
-      setShowPaywall(true);
-      return; // Block message sending
+      console.log("Showing paywall modal (userMessageNoModal)");
+      // Use setTimeout to ensure state updates are processed
+      setTimeout(() => {
+        setShowPaywall(true);
+      }, 100);
+      // Block message sending
+      return;
     }
 
     // Dial count check: Show top-up modal if elite/premium member has 0 interested_dials remaining

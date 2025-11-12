@@ -12,6 +12,27 @@ const CloseButtonSvg = "/assets/paywall/close-button.svg";
 const ProgressBarBackgroundSvg = "/assets/paywall/line-2.svg";
 const ProgressBarForegroundSvg = "/assets/paywall/line-3-blur.svg";
 
+// Ensure portal root exists for mobile compatibility
+const getPortalRoot = () => {
+  if (typeof document === "undefined") return null;
+  
+  let portalRoot = document.getElementById("paywall-portal-root");
+  if (!portalRoot) {
+    portalRoot = document.createElement("div");
+    portalRoot.id = "paywall-portal-root";
+    portalRoot.style.position = "fixed";
+    portalRoot.style.top = "0";
+    portalRoot.style.left = "0";
+    portalRoot.style.width = "100%";
+    portalRoot.style.height = "100%";
+    portalRoot.style.zIndex = "999999";
+    portalRoot.style.pointerEvents = "none";
+    document.body.appendChild(portalRoot);
+  }
+  portalRoot.style.pointerEvents = "auto";
+  return portalRoot;
+};
+
 function StandalonePaywallModal({ isOpen, onClose, onViewPlans }) {
   const router = useRouter();
   const [timeRemaining, setTimeRemaining] = useState(48 * 3600); // 48 hours
@@ -89,11 +110,53 @@ function StandalonePaywallModal({ isOpen, onClose, onViewPlans }) {
     }
   };
 
-  if (!isOpen || !mounted) return null;
+  // Debug logging for mobile troubleshooting
+  useEffect(() => {
+    if (isOpen) {
+      console.log("StandalonePaywallModal: Modal is open", {
+        isOpen,
+        mounted,
+        timeRemaining,
+      });
+    }
+  }, [isOpen, mounted, timeRemaining]);
+
+  // Get portal root for mobile compatibility
+  const portalRoot = typeof document !== "undefined" ? getPortalRoot() : null;
+
+  if (!isOpen || !mounted) {
+    return null;
+  }
 
   const modalContent = (
-    <div className={styles.modalOverlay} onClick={handleOverlayClick}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+    <div 
+      className={styles.modalOverlay} 
+      onClick={handleOverlayClick}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 999999,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div 
+        className={styles.modalContent} 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          zIndex: 1000000,
+          display: "block",
+          visibility: "visible",
+          opacity: 1,
+        }}
+      >
         {/* Close Button - SVG asset */}
         <button className={styles.closeButton} onClick={onClose} aria-label="Close">
           <img
@@ -173,7 +236,14 @@ function StandalonePaywallModal({ isOpen, onClose, onViewPlans }) {
   );
 
   // Render modal using Portal to ensure it's outside of any parent containers
-  return createPortal(modalContent, document.body);
+  // Use portal root if available, otherwise fall back to document.body
+  const target = portalRoot || (typeof document !== "undefined" ? document.body : null);
+  
+  if (!target) {
+    return null;
+  }
+
+  return createPortal(modalContent, target);
 }
 
 export default StandalonePaywallModal;
