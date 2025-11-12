@@ -16,13 +16,33 @@ function LadiesSuccessLiveModal({ isOpen, onClose, onGotIt }) {
   }, []);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      return;
+    }
 
-    // Prevent body scroll when modal is open
+    // Prevent body scroll when modal is open (mobile-friendly)
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
+    // Prevent iOS Safari bounce
+    document.body.style.touchAction = "none";
 
     return () => {
-      document.body.style.overflow = "unset";
+      // Restore body scroll when modal is closed
+      const bodyTop = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      if (bodyTop) {
+        window.scrollTo(0, parseInt(bodyTop || "0") * -1);
+      }
     };
   }, [isOpen]);
 

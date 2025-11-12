@@ -99,6 +99,8 @@ function HomePage({ items }) {
                 alt="ls-logo"
                 height={260}
                 width={279}
+                unoptimized
+                priority
               />
             </div>
           </nav>

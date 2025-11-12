@@ -4,8 +4,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; // Dynamic viewport height for mobile browsers
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -15,6 +16,23 @@
   z-index: 99999;
   padding: 20px;
   animation: fadeIn 0.3s ease;
+  // Prevent iOS Safari bounce
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  // Ensure modal is visible on mobile
+  @supports (-webkit-touch-callout: none) {
+    // iOS Safari
+    height: -webkit-fill-available;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 }
 
 @keyframes fadeIn {
@@ -144,6 +162,11 @@
   @media (max-width: 768px) {
     font-size: 13px;
   }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    line-height: 1.4;
+  }
 }
 
 .underline {
@@ -256,6 +279,11 @@
   @media (max-width: 768px) {
     width: 280px;
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 260px;
+  }
 }
 
 .progressBarForeground {
@@ -318,6 +346,15 @@
   @media (max-width: 768px) {
     width: 280px;
     font-size: 13px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
+    height: 48px;
+    min-height: 44px; // iOS touch target minimum
+    font-size: 13px;
+    touch-action: manipulation; // Prevent double-tap zoom on iOS
   }
 }
 

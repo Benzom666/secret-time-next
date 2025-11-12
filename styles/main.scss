@@ -5710,11 +5710,22 @@ path {
 }
 
 .page-loading-logo {
-  display: flex;
+  display: flex !important;
   justify-content: center;
   align-items: center;
   height: 100vh;
   width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #000000;
+  z-index: 99999;
+
+  img {
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 .document-verfied {

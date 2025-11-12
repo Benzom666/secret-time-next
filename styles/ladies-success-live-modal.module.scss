@@ -7,8 +7,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; // Dynamic viewport height for mobile browsers
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -18,12 +19,21 @@
   z-index: 99999;
   padding: 0;
   animation: fadeIn 0.3s ease;
+  // Prevent iOS Safari bounce
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   // Hide scrollbar
   scrollbar-width: none; // Firefox
   -ms-overflow-style: none; // IE and Edge
 
   &::-webkit-scrollbar {
     display: none; // Chrome, Safari, Opera
+  }
+
+  // Ensure modal is visible on mobile
+  @supports (-webkit-touch-callout: none) {
+    // iOS Safari
+    height: -webkit-fill-available;
   }
 }
 
@@ -70,7 +80,15 @@
 
   @media (max-width: 768px) {
     border-radius: 30px 30px 0 0;
-    padding: 28px 16px 16px 16px;
+    padding: 24px 16px 16px 16px;
+    gap: 32px;
+    max-height: 85vh;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 16px 16px 16px;
+    gap: 24px;
+    max-height: 80vh;
   }
 }
 
@@ -113,6 +131,14 @@
   margin: 0;
   padding: 0;
   white-space: pre-wrap;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+  }
 }
 
 .textContainer {
@@ -136,6 +162,11 @@
   padding: 0;
   white-space: pre-wrap;
   width: 100%;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 }
 
 .offerSection {
@@ -167,6 +198,11 @@
   padding: 0;
   white-space: pre-wrap;
   width: 100%;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    line-height: 1.3;
+  }
 }
 
 .ctaSection {
@@ -185,12 +221,14 @@
   padding: 0;
   width: 300px;
   height: 48px;
+  min-height: 44px; // iOS touch target minimum
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: opacity 0.2s ease;
   flex-shrink: 0;
+  touch-action: manipulation; // Prevent double-tap zoom on iOS
 
   &:hover {
     opacity: 0.8;
@@ -214,6 +252,22 @@
     text-decoration-color: #f24462;
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    max-width: 100%;
+    height: 48px;
+    min-height: 44px;
+
+    p {
+      font-size: 15px;
+    }
   }
 }
 

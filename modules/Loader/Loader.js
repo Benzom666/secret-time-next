@@ -1,17 +1,19 @@
 import React from "react";
 import Image from "next/image";
+import logoGif from "../../assets/logo.gif";
 
 function Loader() {
   return (
     <div className="page-loading-logo">
       <Image
-        src={require("../../assets/logo.gif")}
+        src={logoGif}
         alt="loading..."
         className=""
         width={200}
-        height={400}
+        height={200}
+        unoptimized
+        priority
       />
-      {/* Loading... */}
     </div>
   );
 }
